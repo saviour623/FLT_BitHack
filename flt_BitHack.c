@@ -54,7 +54,7 @@ int main(){
 	if (expon < 0)
 	    frop = (frop >> 1) | (1LL << 63);
 
-	/* extract only fractional. expel backward zeros */
+	/* extract only significand bits */
 	while (frop && !(frop & 1)){
 	    count++;
 	    frop >>= 1;
