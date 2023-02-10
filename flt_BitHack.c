@@ -1,9 +1,14 @@
-#include <stdio.h>
 #include <stdint.h>
-#include <float.h>
 
 double pow_r(int32_t base, int32_t powr);
 #define SET 0XFFFFFFFFFFFFFFFF
+typedef struct float_properties {
+    int32_t exponent;
+    double fraction;
+    double decimal;
+    double mantissa;
+} float_prop;
+double floatmanipul(double, float_prop *);
 
 double pow_r(int32_t base, int32_t powr){
     if (!base)
@@ -16,7 +21,7 @@ double pow_r(int32_t base, int32_t powr){
 	return base;
     return base * pow_r(base, powr - 1);
 }
-int main(){
+double floatmanipul(double flt_val, float_prop *properties){
     union {
 	double x;
 	uint64_t gg;
@@ -30,20 +35,18 @@ int main(){
     int32_t sign;
     double mantissa;
 
-    op.x = 1.999999999;
+    op.x = flt_val;
 
     fracdec = count = 0;
     sign = (int64_t)op.gg >> 63;
-    printf("%d\n", sign);
     !(sign) ? sign = 1 : 0;
     op.gg <<= 1;
 
     /* extract exponent */
     expon = (op.gg >> 53) - 0X3FF;  /*  bias */
+    properties->exponent = expon;
     op.gg <<= 11;
     bits = op.gg; /* save bit state for mantissa */
-
-    printf("expon %Ld\n", expon);
 
     /** if possibility of fraction :- 0 < @expon < 64
      * @fracdec: decimal part, @frop: decimal fraction */
@@ -54,7 +57,7 @@ int main(){
 	if (expon < 0)
 	    frop = (frop >> 1) | (1LL << 63);
 
-	/* extract only significand bits */
+	/* extract only fractional. expel backward zeros */
 	while (frop && !(frop & 1)){
 	    count++;
 	    frop >>= 1;
@@ -65,19 +68,18 @@ int main(){
 	/* divide by number of bits to power of radix(2) */
 	fracdec = (frop / (pow_r(2, 64 - count))) * sign;
 
-	printf("%f\n", fracdec);
+	properties->fraction = (double)fracdec;
 
         /* Extract decimal */
 	op.gg = ((op.gg >> 1) | (1LL << 63))>>(64 - (expon + 1));
-	printf("dec %Ld\n", op.gg * sign);
+	properties->decimal = (double)op.gg * sign;
     }
     /* else reset bits to double representation */
     else if (expon > 63){
 	expon += 1023;
 	op.gg = (op.gg >> 12) | (expon << 52); /* add exp */
 	resetdbl_k = *(volatile double *)&op.gg; /* copy bits */
-
-	printf("p2 %f\n", resetdbl_k);
+	properties->decimal = (double)resetdbl_k * sign;
     }
     /* To conclude extract mantissa */
     revBit = count = i = 0;
@@ -94,7 +96,7 @@ int main(){
 	revBit >>= 1; /* revBit/2 */
     }
     mantissa += 1;
-    printf("mantissa %a\n", mantissa * sign);
-
-    return 0;
+    properties->mantissa = mantissa * sign;
+    /* return fractional */
+    return fracdec;
 }
