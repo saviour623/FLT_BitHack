@@ -10,5 +10,8 @@ The parts of the number is stored in a struct, `float_prop`, with elements:
 * double mantissa;
 ```
 The output are constricted based on the IEEE standard for floating point numbers.
-Reference: 
-Author: Michael Saviour (saviour623@github.com)
+</footer>
+</p>Reference: "IEEE Arithmetic" https://docs.oracle.com/cd/E19957-01/806-3568/ncg_math.html </p>
+</n>Author: Michael Saviour <n\>
+</n>Repo: https://github.com/saviour623/FLT_BitHack<n\>
+<footer\>
