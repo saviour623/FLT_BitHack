@@ -1,15 +1,6 @@
-#include <stdint.h>
+#include "main.h"
 
 #define SET 0XFFFFFFFFFFFFFFFF
-typedef struct float_properties {
-    int32_t exponent;
-    double fraction;
-    double decimal;
-    double mantissa;
-} float_prop;
-
-double pow_r(int32_t base, int32_t powr);
-double floatmanipul(double, float_prop *);
 
 double pow_r(int32_t base, int32_t powr){
     if (!base)
